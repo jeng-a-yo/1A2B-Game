@@ -1,10 +1,8 @@
-import random
+from random import choices
 import os
 import sys
-# 1A2B computer guess
 
-
-def juagment_same(x):
+def JudgmentSame(x):
     y = list(str(x))
     a = int(y[0])
     b = int(y[1])
@@ -15,107 +13,98 @@ def juagment_same(x):
     else:
         return False
 
-
-def countAB(guess_number, compare_number):
+def CountAB(guessNumber, compareNumber):
     A = 0
     B = 0
-    guess_number_list = list(str(guess_number))
-    compare_number_list = list(str(compare_number))
+    guessNumberList = list(str(guessNumber))
+    compareNumberList = list(str(compareNumber))
     for a in range(0, 4):
-        if compare_number_list[a] in guess_number_list:
-            if compare_number_list[a] == guess_number_list[a]:
+        if compareNumberList[a] in guessNumberList:
+            if compareNumberList[a] == guessNumberList[a]:
                 A += 1
             else:
                 B += 1
     return [A, B]
 
-
-def standard_deviation(*data):
+def StandardDeviation(*data):
     pass
 
+ANSWER_LIST = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 0], [1, 1], [1, 2], [1, 3], [2, 0], [2, 1], [2, 2], [3, 0], [4, 0]]
 
-ANSWER_LIST = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 0], [
-    1, 1], [1, 2], [1, 3], [2, 0], [2, 1], [2, 2], [3, 0], [4, 0]]
+allPossibilities = [i for i in range(1023, 9877) if JudgmentSame(i)]
+# print(len(allPossibilities))
 
+guessNumber = str(choices(allPossibilities)[0])
+guessNumberList = list(guessNumber)
 
-all_possibilities = []
-for range_number in range(1023, 9877):
-    if juagment_same(range_number):
-        all_possibilities.append(range_number)
+resultDictionary = {}
 
-guess_number = str(random.sample(all_possibilities, 1)[0])
+resultList = allPossibilities.copy()
 
-guess_number_list = list(guess_number)
-
-result_dictionary = {}
-
-result_list = all_possibilities.copy()
-
-guess_number = (random.sample(result_list, 1))[0]
+guessNumber = choices(resultList)[0]
 
 restart = False
 
+for answerOfFirstGuessNumber in allPossibilities:
+    resultDictionary.update({answerOfFirstGuessNumber: CountAB(guessNumber, answerOfFirstGuessNumber)})
 
-for a in all_possibilities:
-    result_dictionary.update({a: countAB(guess_number, a)})
-times = 0
+guessTimes = 0
 
 print("Game Started!")
-print("Enter interrupt can interrupt the game")
-print("Enter end can end the game")
+print("Enter \'interrupt\' to view remaining possibilities.")
+print("Enter \'end\' to end the game.")
 
 while True:
     try:
-        print("猜測的數字", guess_number)
-        times += 1
+        print("猜測的數字", guessNumber)
+        guessTimes += 1
 
-        reply_A = input("A有幾個")
+        replyA = input("A有幾個")
 
-        if reply_A == "interrupt":
-            print(result_list)
-            times -= 1
+        if replyA == "interrupt":
+            print(resultList)
+            guessTimes -= 1
             continue
 
-        if reply_A == "end":
+        if replyA == "end":
             break
 
-        if int(reply_A) == 4:
-            print("答案是", guess_number)
-            print("猜了", times, "次")
+        if int(replyA) == 4:
+            print("答案是", guessNumber)
+            print("猜了", guessTimes, "次")
             break
 
-        reply_B = input("B有幾個")
+        replyB = input("B有幾個")
 
-        if reply_B == "interrupt":
-            print(result_list)
-            times -= 1
+        if replyB == "interrupt":
+            print(resultList)
+            guessTimes -= 1
             continue
 
-        if reply_B == "end":
+        if replyB == "end":
             break
 
-        result_list.clear()
+        resultList.clear()
 
-        for b in result_dictionary.items():
-            if (b[1])[0] == int(reply_A) and (b[1])[1] == int(reply_B):
-                result_list.append(b[0])
+        for b in resultDictionary.items():
+            if (b[1])[0] == int(replyA) and (b[1])[1] == int(replyB):
+                resultList.append(b[0])
 
-        if len(result_list) == 1:
-            print("答案是", result_list[0])
-            times += 1
-            print("猜了", times, "次")
-
+        if len(resultList) == 1:
+            print("答案是", resultList[0])
+            guessTimes += 1
+            print("猜了", guessTimes, "次")
             break
 
-        guess_number = (random.sample(result_list, 1))[0]
+        guessNumber = choices(resultList)[0]
 
-        result_dictionary.clear()
+        resultDictionary.clear()
 
-        for c in result_list:
-            result_dictionary.update({c: countAB(guess_number, c)})
+        for c in resultList:
+            resultDictionary.update({c: CountAB(guessNumber, c)})
 
     except ValueError:
-        print("The enter was incorrect")
+        print("The entry was incorrect")
         print("The game will restart")
         restart = True
         break
